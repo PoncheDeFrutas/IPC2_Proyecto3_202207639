@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resultados</title>
+
+    <!-- Incluye la hoja de estilo de Bootstrap desde un CDN -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+
+    <!-- Estilos personalizados -->
+    <style>
+        /* Estilos personalizados para el fondo y colores de la página */
+        body {
+            background-color: #0d0a17;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+        }
+
+        /* Estilos personalizados para el contenedor principal */
+        #main-container {
+            background-color: #101556;
+            border-radius: 10px;
+            padding: 20px;
+            width: 100%; /* Cambia el valor del ancho según tus necesidades */
+        }
+
+        /* Estilos personalizados para el contenedor del menú */
+        #menu-container {
+            background-color: #44406b;
+            border-radius: 5px;
+            padding: 20px;
+        }
+
+        /* Estilos personalizados para el menú */
+        .menu-item a {
+            color: #fff;
+            text-decoration: none;
+            transition: color 1s;
+            display: flex; /* Utiliza flexbox para centrar verticalmente el contenido */
+            align-items: center; /* Centra verticalmente el contenido */
+            justify-content: center; /* Centra horizontalmente el contenido */
+            height: 100%; /* Asegura que los elementos ocupen todo el alto del contenedor */
+        }
+
+        .menu-item a:hover {
+            color: #ccc;
+        }
+
+        /* Estilos personalizados para el contenedor del título */
+        #title-container {
+            background-color: #28264e;
+            border-radius: 5px;
+            padding: 20px;
+        }
+
+        /* Estilos personalizados para el título */
+        #titulo {
+            color: #fff;
+        }
+
+        /* Añadir una clase personalizada para igualar el ancho de los elementos */
+        .equal-width {
+            display: flex;
+        }
+
+        .equal-width > .col {
+            flex: 1;
+        }
+
+        /* Estilos personalizados para el fondo del contenedor de datos */
+        #data-container {
+            background-color: #28264e;
+            padding: 20px;
+            border-radius: 5px;
+            max-height: 40vh; /* Altura máxima para el contenedor de datos */
+            overflow-y: auto; /* Agrega barras de desplazamiento vertical si es necesario */
+        }
+
+        /* Estilos personalizados para los datos cargados dinámicamente */
+        #data-container ul {
+            list-style-type: square;
+        }
+
+        #data-container ul li {
+            margin-left: 20px;
+        }
+
+        #data-container h2.custom-text-color {
+            color: white; /* Color de texto personalizado */
+            font-size: 16px; /* Cambia el valor según tus preferencias */
+        }
+
+        #data-container .custom-text-color {
+            color: white; /* Color de texto personalizado */
+        }
+    </style>
+</head>
+<body>
+    <!-- Un indicador de carga -->
+    <div id="loader">
+        <div class="spinner-border text-primary" role="status">
+            <span class="sr-only"></span>
+        </div>
+    </div>
+
+    <!-- Contenedor principal -->
+    <div id="main-container" style="display: none;">
+        <div class="container">
+            <div class="row">
+                <!-- Contenedor del título -->
+                <div class="col-12">
+                    <div id="title-container">
+                        <h1 id="titulo" class="text-center mb-4">Resultados</h1>
+                    </div>
+                </div>
+                <!-- Contenedor del menú con diseño de ancho igualado -->
+                <div class="col-12">
+                    <div id="menu-container">
+                        <div class="container">
+                            <div class="row equal-width">
+                                <div class="col menu-item">
+                                    <a href="{% url 'index' %}">Inicio</a>
+                                </div>
+                                <div class="col menu-item">
+                                    <a href="{% url 'reset_data' %}">Resetear Datos</a>
+                                </div>
+                                <div class="col menu-item">
+                                    <a href="{% url 'load_messages' %}">Cargar Mensaje</a>
+                                </div>
+                                <div class="col menu-item">
+                                    <a href="{% url 'load_dictionary' %}">Cargar Configuración</a>
+                                </div>
+                                <div class="col menu-item">
+                                    <a href="{% url 'requests' %}">Peticiones</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Contenedor de los datos formateados -->
+                <div class="col-12">
+                    <div id="data-container">
+                        <!-- Utiliza un bucle for para recorrer los datos formateados -->
+                        {% for entry in formatted_data %}
+                            <h2 class="custom-text-color">Fecha: {{ entry.date }}</h2>
+                            {% if entry.data_type == 'Hashtags' %}
+                                <ul>
+                                    <!-- Utiliza un bucle for para recorrer los hashtags -->
+                                    {% for item in entry.items %}
+                                        <li class="custom-text-color">{{ forloop.counter }}. {{ item.0 }} : {{ item.1 }} mensajes</li>
+                                    {% endfor %}
+                                </ul>
+                            {% elif entry.data_type == 'Usuarios' %}
+                                <ul>
+                                    <!-- Utiliza un bucle for para recorrer los usuarios -->
+                                    {% for item in entry.items %}
+                                        <li class="custom-text-color">{{ forloop.counter }}. {{ item.0 }} : {{ item.1 }} mensajes</li>
+                                    {% endfor %}
+                                </ul>
+                            {% elif entry.data_type == 'Sentimientos' %}
+                                <p class="custom-text-color">Mensajes con sentimiento positivo: {{ entry.items.0.1 }} mensajes</p>
+                                <p class="custom-text-color">Mensajes con sentimiento negativo: {{ entry.items.1.1 }} mensajes</p>
+                                <p class="custom-text-color">Mensajes neutros: {{ entry.items.2.1 }} mensaje{% if entry.items.2.1 != 1 %}s{% endif %}</p>
+                            {% else %}
+                                <p class="custom-text-color">No hay datos disponibles para esta fecha.</p>
+                            {% endif %}
+                        {% endfor %}
+                        <!-- Mensaje cuando no hay datos que mostrar -->
+                        {% if formatted_data|length == 0 %}
+                            <p class="text-center custom-text-color">No hay datos que mostrar</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script para mostrar elementos después de la carga de la página -->
+    <script>
+        window.addEventListener("load", function () {
+            document.getElementById("main-container").style.display = "flex";
+            document.getElementById("loader").style.display = "none";
+        });
+    </script>
+
+    <!-- Incluye el archivo JavaScript de Bootstrap desde un CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

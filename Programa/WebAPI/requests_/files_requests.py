@@ -1,4 +1,5 @@
-import json, xmltodict, re
+ import json
+import xmltodict, re
 from flask import request, g
 from datetime import datetime
 from unidecode import unidecode
