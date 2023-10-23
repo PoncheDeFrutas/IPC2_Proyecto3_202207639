@@ -36,7 +36,7 @@ def get_hashtags_count_by_date(dates):
     db = get_db()
     cursor = db.cursor()
 
-    # Crear un elemento raíz para el XML
+    # Create an element root for the XML
     root = Et.Element("hashtags_count")
 
     consult = """
@@ -53,14 +53,16 @@ def get_hashtags_count_by_date(dates):
         cursor.execute(consult, (date,))
         hashtags_data = cursor.fetchall()
 
-        # Crear un elemento XML para cada fecha
+        # Create an XML element for each date
         date_element = Et.Element("date")
         root.append(date_element)
 
-        # Agregar el formato de fecha
-        date_element.text = date
+        # Add the "date_time" element within the "date" element
+        date_time_element = Et.Element("date_time")
+        date_time_element.text = date
+        date_element.append(date_time_element)
 
-        # Agregar información de hashtags
+        # Add information about hashtags within the "date" element
         hashtags_element = Et.Element("hashtags")
         date_element.append(hashtags_element)
 
@@ -76,7 +78,7 @@ def get_hashtags_count_by_date(dates):
             hashtag_count.text = str(hashtag_data[1])
             hashtag_entry.append(hashtag_count)
 
-    # Convertir la estructura XML en una cadena de texto
+    # Convert the XML structure into a string with UTF-8 encoding
     xml_response = Et.tostring(root, encoding="utf-8").decode()
     return xml_response
 
@@ -85,7 +87,7 @@ def get_users_count_by_date(dates):
     db = get_db()
     cursor = db.cursor()
 
-    # Crear un elemento raíz para el XML
+    # Create an element root for the XML
     root = Et.Element("users_count")
 
     consult = """
@@ -102,14 +104,16 @@ def get_users_count_by_date(dates):
         cursor.execute(consult, (date,))
         users_data = cursor.fetchall()
 
-        # Crear un elemento XML para cada fecha
+        # Create an XML element for each date
         date_element = Et.Element("date")
         root.append(date_element)
 
-        # Agregar el formato de fecha
-        date_element.text = date
+        # Add the "date_time" element within the "date" element
+        date_time_element = Et.Element("date_time")
+        date_time_element.text = date
+        date_element.append(date_time_element)
 
-        # Agregar información de usuarios
+        # Add information about users
         users_element = Et.Element("users")
         date_element.append(users_element)
 
@@ -125,7 +129,7 @@ def get_users_count_by_date(dates):
             user_count.text = str(user_data[1])
             user_entry.append(user_count)
 
-    # Convertir la estructura XML en una cadena de texto
+    # Convert the XML structure into a string with UTF-8 encoding
     xml_response = Et.tostring(root, encoding="utf-8").decode()
     return xml_response
 

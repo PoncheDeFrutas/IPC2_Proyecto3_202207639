@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Proyecto 3</title>
+
+    <!-- Incluye la hoja de estilo de Bootstrap desde un CDN -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+
+    <!-- Incluye la biblioteca Chart.js desde un CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.4"></script>
+
+    <!-- Estilos personalizados -->
+    <style>
+        /* Estilos personalizados para el fondo y colores de la página */
+        body {
+            background-color: #0d0a17;
+            height: 100vh;
+            margin: 0;
+        }
+
+        /* Contenedor principal para centrar horizontalmente */
+        #main-container {
+            background-color: #101556;
+            border-radius: 10px;
+            padding: 20px;
+            width: 100%;
+            max-width: 1200px;
+            margin: 20px auto 0; /* Centrado horizontalmente y 20 píxeles desde la parte superior */
+        }
+
+        /* Estilos personalizados para el contenedor del menú */
+        #menu-container {
+            background-color: #44406b;
+            border-radius: 5px;
+            padding: 20px;
+        }
+
+        /* Estilos personalizados para el menú */
+        .menu-item a {
+            color: #fff;
+            text-decoration: none;
+            transition: color 1s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+        }
+
+        .menu-item a:hover {
+            color: #ccc;
+        }
+
+        /* Estilos personalizados para el contenedor del título */
+        #title-container {
+            background-color: #28264e;
+            border-radius: 5px;
+            padding: 20px;
+        }
+
+        /* Estilos personalizados para el título */
+        #titulo {
+            color: #fff;
+        }
+
+        /* Estilos personalizados para el contenedor adicional */
+        #additional-container {
+            background-color: #3e3b63;
+            border-radius: 5px;
+            padding: 20px;
+        }
+
+        /* Añadir una clase personalizada para igualar el ancho de los elementos */
+        .equal-width {
+            display: flex;
+        }
+
+        .equal-width > .col {
+            flex: 1;
+        }
+    </style>
+</head>
+<body>
+    <!-- Un indicador de carga -->
+    <div id="loader">
+        <div class="spinner-border text-primary" role="status">
+            <span class="sr-only"></span>
+        </div>
+    </div>
+
+    <!-- Contenedor principal centrado horizontalmente -->
+    <div id="main-container" style="display: none;">
+        <div class="container">
+            <div class="row">
+                <!-- Contenedor del título -->
+                <div class="col-12">
+                    <div id="title-container">
+                        <h1 id="titulo" class="text-center mb-4">Graficas</h1>
+                    </div>
+                </div>
+                <!-- Contenedor del menú con diseño de ancho igualado y centrado -->
+                <div class="col-12">
+                    <div id="menu-container">
+                        <div class="container">
+                            <div class="row equal-width justify-content-center">
+                                <div class="col menu-item">
+                                    <a href="{% url 'index' %}">Inicio</a>
+                                </div>
+                                <div class="col menu-item">
+                                    <a href="{% url 'reset_data' %}">Resetear Datos</a>
+                                </div>
+                                <div class="col menu-item">
+                                    <a href="{% url 'load_messages' %}">Cargar Mensaje</a>
+                                </div>
+                                <div class="col menu-item">
+                                    <a href="{% url 'load_dictionary' %}">Cargar Configuración</a>
+                                </div>
+                                <div class="col menu-item">
+                                    <a href="{% url 'requests' %}">Peticiones</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Contenedor adicional con gráficos -->
+                <div class="col-12">
+                    <div id="additional-container">
+                        <h2>Gráfico de Hashtags</h2>
+                        <canvas id="hashtagsChart" width="400" height="200"></canvas>
+                        <h2>Gráfico de Menciones</h2>
+                        <canvas id="mentionsChart" width="400" height="200"></canvas>
+                        <h2>Gráfico de Sentimientos</h2>
+                        <canvas id="sentimentsChart" width="400" height="200"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Datos de hashtags, menciones y sentimientos (puedes obtener estos datos de tu servidor)
+        var hashtagsData = {{ formatted_data.hashtags|safe }};
+        var mentionsData = {{ formatted_data.mentions|safe }};
+        var sentimentsData = {{ formatted_data.sentiments|safe }};
+
+        // Obtener el contexto del canvas para los gráficos de hashtags
+        var hashtagsCanvas = document.getElementById("hashtagsChart");
+        var hashtagsContext = hashtagsCanvas.getContext("2d");
+
+        // Configurar y crear el gráfico de hashtags
+        var hashtagsChart = new Chart(hashtagsContext, {
+            type: 'bar',
+            data: {
+                labels: Object.keys(hashtagsData),
+                datasets: [{
+                    label: 'Cantidad de veces',
+                    data: Object.values(hashtagsData),
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    yAxes: [{
+                        ticks: {
+                            beginAtZero: true,
+                            stepSize: 1, // Solo números enteros
+                        }
+                    }]
+                }
+            }
+        });
+
+        // Obtener el contexto del canvas para los gráficos de menciones
+        var mentionsCanvas = document.getElementById("mentionsChart");
+        var mentionsContext = mentionsCanvas.getContext("2d");
+
+        // Configurar y crear el gráfico de menciones
+        var mentionsChart = new Chart(mentionsContext, {
+            type: 'bar',
+            data: {
+                labels: Object.keys(mentionsData),
+                datasets: [{
+                    label: 'Cantidad de veces',
+                    data: Object.values(mentionsData),
+                    backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                    borderColor: 'rgba(255, 99, 132, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    yAxes: [{
+                        ticks: {
+                            beginAtZero: true,
+                            stepSize: 1, // Solo números enteros
+                        }
+                    }]
+                }
+            }
+        });
+
+        // Obtener el contexto del canvas para el gráfico de sentimientos
+        var sentimentsCanvas = document.getElementById("sentimentsChart");
+        var sentimentsContext = sentimentsCanvas.getContext("2d");
+
+        // Configurar y crear el gráfico de sentimientos
+        var sentimentsChart = new Chart(sentimentsContext, {
+            type: 'bar',
+            data: {
+                labels: Object.keys(sentimentsData),
+                datasets: [{
+                    label: 'Cantidad de veces',
+                    data: Object.values(sentimentsData),
+                    backgroundColor: 'rgba(255, 206, 86, 0.2)',
+                    borderColor: 'rgba(255, 206, 86, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    yAxes: [{
+                        ticks: {
+                            beginAtZero: true,
+                            stepSize: 1, // Solo números enteros
+                        }
+                    }]
+                }
+            }
+        });
+    </script>
+
+    <!-- Script para mostrar elementos después de la carga de la página -->
+    <script>
+        window.addEventListener("load", function () {
+            document.getElementById("main-container").style.display = "block";
+            document.getElementById("loader").style.display = "none";
+        });
+    </script>
+
+    <!-- Incluye el archivo JavaScript de Bootstrap desde un CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
