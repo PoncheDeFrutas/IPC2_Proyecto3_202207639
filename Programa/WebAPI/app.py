@@ -42,11 +42,6 @@ def clear_database():
     return 'Base de datos limpia'
 
 
-@app.route('/devolerHashtags', methods=['POST'])
-def post_return_hashtags():
-    pass
-
-
 @app.route('/devolerHashtags', methods=['GET'])
 def get_return_hashtags():
     date_one = datetime.strptime(request.args.get('date_1'), "%d/%m/%Y")
@@ -60,11 +55,6 @@ def get_return_hashtags():
         print(f"{date_one} es igual a {date_two}")
 
 
-@app.route('/devolerMenciones', methods=['POST'])
-def post_return_mencions():
-    pass
-
-
 @app.route('/devolerMenciones', methods=['GET'])
 def get_return_mencions():
     date_one = datetime.strptime(request.args.get('date_1'), "%d/%m/%Y")
@@ -76,11 +66,6 @@ def get_return_mencions():
         return get_users_count_by_date(response)
     else:
         print(f"{date_one} es igual a {date_two}")
-
-
-@app.route('/devolverSentimientos', methods=['POST'])
-def post_return_feelings():
-    pass
 
 
 @app.route('/devolverSentimientos', methods=['GET'])
@@ -102,5 +87,6 @@ def initialize_database():
     return 'Base de datos inicializada'
 
 
-if __name__ == '__main':
-    app.run(debug=True, port=3050)
+if __name__ == '__main__':
+    print("hola")
+    app.run(debug=True)

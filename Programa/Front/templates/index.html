@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Mi Página</title>
+</head>
+<body>
+    <h1>Subir Archivos y Realizar Peticiones</h1>
+
+    <form action="{% url 'upload_messages_xml' %}" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <input type="file" name="messages_archive">
+        <input type="submit" value="Subir archivo">
+    </form>
+
+    <form action="{% url 'upload_dictionary_xml' %}" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <input type="file" name="dictionary_archive">
+        <input type="submit" value="Subir XML Diferente">
+    </form>
+
+    <form action="/make_request/1/" method="get" id="make_request_form_1">
+        <!-- Elimina los campos ocultos, ya que los configuraremos con JavaScript -->
+        <input type="submit" value="Peticion 1">
+    </form>
+
+    <form action="/make_request/2/" method="get" id="make_request_form_2">
+        <input type="submit" value="Peticion 2">
+    </form>
+
+    <form action="/make_request/3/" method="get" id="make_request_form_3">
+        <input type="submit" value="Peticion 3">
+    </form>
+
+    <form action="/make_request/4/" method="get" id="make_request_form_4">
+        <input type="submit" value="Peticion 4">
+    </form>
+
+    <!-- Two date input fields outside the forms -->
+    <label for="date_1">Fecha 1:</label>
+    <input type="text" id="date_1" placeholder="dd/mm/yyyy" />
+    <label for="date_2">Fecha 2:</label>
+    <input type="text" id="date_2" placeholder="dd/mm/yyyy" />
+
+    <button type="button" id="submit_button">Submit</button>
+
+    <script>
+        // JavaScript to validate and format dates
+        document.getElementById('submit_button').addEventListener('click', function () {
+            let date1 = document.getElementById('date_1').value;
+            let date2 = document.getElementById('date_2').value;
+
+            if (!isValidDate(date1) || !isValidDate(date2)) {
+                alert('Por favor, ingresa fechas válidas en el formato dd/mm/yyyy.');
+                return;
+            }
+
+            // Establece las fechas en los formularios antes de enviarlos
+            document.getElementById('make_request_form_1').action = `/make_request/1/?date_1=${date1}&date_2=${date2}`;
+            document.getElementById('make_request_form_2').action = `/make_request/2/?date_1=${date1}&date_2=${date2}`;
+            document.getElementById('make_request_form_3').action = `/make_request/3/?date_1=${date1}&date_2=${date2}`;
+            document.getElementById('make_request_form_4').action = `/make_request/4/?date_1=${date1}&date_2=${date2}`;
+
+            // Envía todos los formularios
+            document.getElementById('make_request_form_1').submit();
+            document.getElementById('make_request_form_2').submit();
+            document.getElementById('make_request_form_3').submit();
+            document.getElementById('make_request_form_4').submit();
+        });
+
+        function isValidDate(dateString) {
+            var regex = /^\d{2}\/\d{2}\/\d{4}$/;
+            if (!regex.test(dateString)) return false;
+            var parts = dateString.split("/");
+            var day = parseInt(parts[0], 10);
+            var month = parseInt(parts[1], 10);
+            var year = parseInt(parts[2], 10);
+            if (year < 1000 || year > 9999 || month == 0 || month > 12) return false;
+            var maxDays = new Date(year, month, 0).getDate();
+            return day > 0 && day <= maxDays;
+        }
+    </script>
+</body>
+</html>

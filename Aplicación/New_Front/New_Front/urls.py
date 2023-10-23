@@ -1,5 +1,5 @@
 """
-URL configuration for Front project.
+URL configuration for New_Front project.
 
 The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/4.2/topics/http/urls/
@@ -16,13 +16,15 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from Front.view import *
+from New_Front.views import *
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('index/', index),
-    path('upload_messages_xml/', save_messages, name='upload_messages_xml'),
-    path('upload_dictionary_xml/', save_dictionary, name='upload_dictionary_xml'),
-    path('clean_database/', clean_database, name='clean_database'),
-    path('make_request/<int:request_id>/', make_request, name='make_request')
+    path('', index, name='index'),
+    path('reset/', reset_data, name='reset_data'),
+    path('load_messages/', load_messages, name='load_messages'),
+    path('load_dictionary/', load_dictionary, name='load_dictionary'),
+    path('requests/', requests, name='requests'),
+    path('upload_file', upload_file, name='upload_file'),
+    path('results/', results, name='results'),
+    path('graphics/', graphics, name='graphics'),
 ]
