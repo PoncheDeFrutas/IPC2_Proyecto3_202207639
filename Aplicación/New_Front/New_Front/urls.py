@@ -14,7 +14,6 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
-from django.contrib import admin
 from django.urls import path
 from New_Front.views import *
 
@@ -27,4 +26,5 @@ urlpatterns = [
     path('upload_file', upload_file, name='upload_file'),
     path('results/', results, name='results'),
     path('graphics/', graphics, name='graphics'),
+    path('show_pdf/', show_pdf, name='show_pdf')
 ]

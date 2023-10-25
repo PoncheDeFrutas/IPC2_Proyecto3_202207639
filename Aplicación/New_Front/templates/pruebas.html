@@ -8,9 +8,6 @@
     <!-- Incluye la hoja de estilo de Bootstrap desde un CDN -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
 
-    <!-- Incluye la biblioteca Chart.js desde un CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.4"></script>
-
     <!-- Estilos personalizados -->
     <style>
         /* Estilos personalizados para el fondo y colores de la página */
@@ -39,6 +36,37 @@
             padding: 20px;
         }
 
+        /* Estilos personalizados para los contenedores 1 y 2 */
+        #contenedor1, #contenedor2 {
+            background-color: #44406b;
+            border-radius: 5px;
+            padding: 20px;
+            margin-top: 20px; /* Espacio entre los contenedores y el menú */
+        }
+
+        /* Estilos personalizados para el título */
+        #title-container {
+            background-color: #28264e;
+            border-radius: 5px;
+            padding: 20px;
+            text-align: center; /* Alinea el contenido al centro */
+        }
+
+        #titulo {
+            color: #fff;
+            font-size: 36px; /* Ajusta el tamaño de fuente según tu preferencia */
+            margin: 0; /* Elimina el margen superior e inferior predeterminado del encabezado */
+        }
+
+        /* Añadir una clase personalizada para igualar el ancho de los elementos */
+        .equal-width {
+            display: flex;
+        }
+
+        .equal-width > .col {
+            flex: 1;
+        }
+
         /* Estilos personalizados para el menú */
         .menu-item a {
             color: #fff;
@@ -54,32 +82,26 @@
             color: #ccc;
         }
 
-        /* Estilos personalizados para el contenedor del título */
-        #title-container {
+        /* Estilos para el botón de carga de archivos y el botón personalizado */
+        .custom-button {
             background-color: #28264e;
-            border-radius: 5px;
-            padding: 20px;
-        }
-
-        /* Estilos personalizados para el título */
-        #titulo {
             color: #fff;
-        }
-
-        /* Estilos personalizados para el contenedor adicional */
-        #additional-container {
-            background-color: #3e3b63;
+            border: none;
             border-radius: 5px;
-            padding: 20px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            width: 100%;
+            transition: box-shadow 0.3s; /* Agregar transición para el efecto de sombra */
         }
 
-        /* Añadir una clase personalizada para igualar el ancho de los elementos */
-        .equal-width {
-            display: flex;
+        .custom-button:hover {
+            background-color: #101556;
         }
 
-        .equal-width > .col {
-            flex: 1;
+        /* Estilos personalizados para los textos de fecha */
+        label[for="fecha-inicial"], label[for="fecha-final"] {
+            color: #fff;
         }
     </style>
 </head>
@@ -98,7 +120,7 @@
                 <!-- Contenedor del título -->
                 <div class="col-12">
                     <div id="title-container">
-                        <h1 id="titulo" class="text-center mb-4">Graficas</h1>
+                        <h1 id="titulo" class="text-center mb-4">Peticiones</h1>
                     </div>
                 </div>
                 <!-- Contenedor del menú con diseño de ancho igualado -->
@@ -119,119 +141,100 @@
                                     <a href="{% url 'load_dictionary' %}">Cargar Configuración</a>
                                 </div>
                                 <div class="col menu-item">
-                                    <a href="{% url 'requests' %}">Peticiones</a>
+                                    <a href="{% url 'requests' %}" style="pointer-events: none; opacity: 0.5;">Peticiones</a>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-                <!-- Contenedor adicional con gráficos -->
+                <!-- Contenedor 1 con selección de fechas y botones -->
                 <div class="col-12">
-                    <div id="additional-container">
-                        <h2>Gráfico de Hashtags</h2>
-                        <canvas id="hashtagsChart" width="400" height="200"></canvas>
-                        <h2>Gráfico de Menciones</h2>
-                        <canvas id="mentionsChart" width="400" height="200"></canvas>
-                        <h2>Gráfico de Sentimientos</h2>
-                        <canvas id="sentimentsChart" width="400" height="200"></canvas>
+                    <div id="contenedor1">
+                        <!-- Selección de fecha inicial -->
+                        <div class="row">
+                            <div class="col-12">
+                                <label for="fecha-inicial">Fecha Inicial:</label>
+                                <input type="date" id="fecha-inicial" class="form-control">
+                            </div>
+                        </div>
+                        <!-- Selección de fecha final -->
+                        <div class="row">
+                            <div class="col-12">
+                                <label for="fecha-final">Fecha Final:</label>
+                                <input type="date" id="fecha-final" class="form-control">
+                            </div>
+                        </div>
+                        <!-- Botones en una lista vertical -->
+                        <div class="row mt-3">
+                            <div class="col-12">
+                                <form method="get" action="{% url 'requests' %}">
+                                    <input type="hidden" name="action" value="consultar-hashtags">  <!-- Agrega este campo oculto -->
+                                    <input type="hidden" name="date_1" id="date_1" value="">
+                                    <input type="hidden" name="date_2" id="date_2" value="">
+                                    <button class="custom-button" disabled>Consultar Hashtags</button>
+                                </form>
+                            </div>
+                            <div class="col-12">
+                                <form method="get" action="{% url 'requests' %}">
+                                    <input type="hidden" name="action" value="consultar-menciones">  <!-- Agrega este campo oculto -->
+                                    <input type="hidden" name="date_1" id="date_1" value="">
+                                    <input type="hidden" name="date_2" id="date_2" value="">
+                                    <button class="custom-button" disabled>Consultar Menciones</button>
+                                </form>
+                            </div>
+                            <div class="col-12">
+                                <form method="get" action="{% url 'requests' %}">
+                                    <input type="hidden" name="action" value="consultar-sentimientos">  <!-- Agrega este campo oculto -->
+                                    <input type="hidden" name="date_1" id="date_1" value="">
+                                    <input type="hidden" name="date_2" id="date_2" value="">
+                                    <button class="custom-button" disabled>Consultar Sentimientos en Mensajes</button>
+                                </form>
+                            </div>
+                            <div class="col-12">
+                                <form method="get" action="{% url 'requests' %}">
+                                    <input type="hidden" name="action" value="grafica">  <!-- Agrega este campo oculto -->
+                                    <input type="hidden" name="date_1" id="date_1" value="">
+                                    <input type="hidden" name="date_2" id="date_2" value="">
+                                    <button class="custom-button" disabled>Gráfica</button>
+                                </form>
+                            </div>
+                            <div class="col-12">
+                                <button class="custom-button" id="open-popup-button">Abrir Cuadro Emergente</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- Script para habilitar los botones cuando se seleccionan ambas fechas -->
     <script>
-        // Datos de hashtags, menciones y sentimientos (puedes obtener estos datos de tu servidor)
-        var hashtagsData = {{ formatted_data.hashtags|safe }};
-        var mentionsData = {{ formatted_data.mentions|safe }};
-        var sentimentsData = {{ formatted_data.sentiments|safe }};
+        const fechaInicialInput = document.getElementById("fecha-inicial");
+        const fechaFinalInput = document.getElementById("fecha-final");
 
-        // Obtener el contexto del canvas para los gráficos de hashtags
-        var hashtagsCanvas = document.getElementById("hashtagsChart");
-        var hashtagsContext = hashtagsCanvas.getContext("2d");
+        fechaInicialInput.addEventListener("input", enableButtons);
+        fechaFinalInput.addEventListener("input", enableButtons);
 
-        // Configurar y crear el gráfico de hashtags
-        var hashtagsChart = new Chart(hashtagsContext, {
-            type: 'bar',
-            data: {
-                labels: Object.keys(hashtagsData), // Etiquetas de los hashtags
-                datasets: [{
-                    label: 'Cantidad de veces',
-                    data: Object.values(hashtagsData), // Valores de los hashtags
-                    backgroundColor: 'rgba(75, 192, 192, 0.2)', // Color de fondo
-                    borderColor: 'rgba(75, 192, 192, 1)', // Color del borde
-                    borderWidth: 1 // Ancho del borde
-                }]
-            },
-            options: {
-                scales: {
-                    yAxes: [{
-                        ticks: {
-                            beginAtZero: true
-                        }
-                    }]
-                }
+        function enableButtons() {
+            const date_1 = fechaInicialInput.value;
+            const date_2 = fechaFinalInput.value;
+            const buttons = document.querySelectorAll(".custom-button");
+
+            if (date_1 && date_2) {
+                buttons.forEach(button => {
+                    button.removeAttribute("disabled");
+                    // Actualiza los valores de date_1 y date_2 en los formularios
+                    const form = button.parentElement;
+                    form.querySelector("#date_1").value = date_1;
+                    form.querySelector("#date_2").value = date_2;
+                });
+            } else {
+                buttons.forEach(button => button.setAttribute("disabled", "true"));
             }
-        });
-
-        // Obtener el contexto del canvas para los gráficos de menciones
-        var mentionsCanvas = document.getElementById("mentionsChart");
-        var mentionsContext = mentionsCanvas.getContext("2d");
-
-        // Configurar y crear el gráfico de menciones
-        var mentionsChart = new Chart(mentionsContext, {
-            type: 'bar',
-            data: {
-                labels: Object.keys(mentionsData), // Etiquetas de las menciones
-                datasets: [{
-                    label: 'Cantidad de veces',
-                    data: Object.values(mentionsData), // Valores de las menciones
-                    backgroundColor: 'rgba(255, 99, 132, 0.2)', // Color de fondo
-                    borderColor: 'rgba(255, 99, 132, 1)', // Color del borde
-                    borderWidth: 1 // Ancho del borde
-                }]
-            },
-            options: {
-                scales: {
-                    yAxes: [{
-                        ticks: {
-                            beginAtZero: true
-                        }
-                    }]
-                }
-            }
-        });
-
-        // Obtener el contexto del canvas para el gráfico de sentimientos
-        var sentimentsCanvas = document.getElementById("sentimentsChart");
-        var sentimentsContext = sentimentsCanvas.getContext("2d");
-
-        // Configurar y crear el gráfico de sentimientos
-        var sentimentsChart = new Chart(sentimentsContext, {
-            type: 'bar',
-            data: {
-                labels: Object.keys(sentimentsData), // Etiquetas de sentimientos
-                datasets: [{
-                    label: 'Cantidad de veces',
-                    data: Object.values(sentimentsData), // Valores de sentimientos
-                    backgroundColor: 'rgba(255, 206, 86, 0.2)', // Color de fondo
-                    borderColor: 'rgba(255, 206, 86, 1)', // Color del borde
-                    borderWidth: 1 // Ancho del borde
-                }]
-            },
-            options: {
-                scales: {
-                    yAxes: [{
-                        ticks: {
-                            beginAtZero: true
-                        }
-                    }]
-                }
-            }
-        });
+        }
     </script>
 
-    <!-- Script para mostrar elementos después de la carga de la página -->
     <script>
         window.addEventListener("load", function () {
             document.getElementById("main-container").style.display = "flex";

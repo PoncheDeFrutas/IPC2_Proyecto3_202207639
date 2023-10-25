@@ -23,6 +23,7 @@ def save_messages():
         files_json = process_xml_files()
         messages = extract_messages(files_json)
         response = save_messages_in_db(messages)
+        generate_resume_messages()
         return jsonify(response)
     except Exception as e:
         return jsonify({'error': f'Error al procesar los archivos XML---: {str(e)}'}), 500
@@ -32,6 +33,7 @@ def save_messages():
 def save_directory():
     try:
         response = save_dictionary_in_db(extract_feelings(process_xml_files()))
+        a = generate_resume_config()
         return jsonify(response)
     except Exception as e:
         return jsonify({'error': f'Error al procesar los archivos XML------: {str(e)}'}), 500
@@ -150,6 +152,10 @@ def get_all():
 
 
 
+@app.route("/devolverResumen", methods=['GET'])
+def return_resume():
+    datas = {'messages_resume': generate_resume_messages(), 'config_resume': generate_resume_config()}
+    return datas
 
 
 

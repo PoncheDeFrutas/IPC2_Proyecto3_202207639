@@ -1,9 +1,9 @@
-from django.shortcuts import render, redirect
-from django.http import HttpResponse
+from django.shortcuts import render
+from django.http import HttpResponse, FileResponse
 from django.conf import settings
 from requests import post, get
 from datetime import datetime
-import json
+import json, os, base64
 
 
 def index(request):
@@ -147,3 +147,18 @@ def results(request):
 
 def graphics(request):
     return render(request, 'graphics.html')
+
+
+def show_pdf(request):
+    pdf_path = os.path.join(settings.MEDIA_ROOT, 'pdf', "Manual_de_Usuario_Prueba_Funcional.pdf")
+
+    try:
+        with open(pdf_path, 'rb') as pdf_file:
+            pdf_data = pdf_file.read()
+            pdf_base64 = base64.b64encode(pdf_data).decode('utf-8')
+
+        return render(request, 'show_pdf.html', {'pdf_base64': pdf_base64})
+    except FileNotFoundError:
+        # Manejar el caso en el que el archivo no existe
+        # Puedes mostrar un mensaje de error o redirigir a una página de error
+        pass
