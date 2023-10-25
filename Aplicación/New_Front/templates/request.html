@@ -1,9 +1,11 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Proyecto 3</title>
+    <link rel="icon" type="image/png" href="{% static 'images/orbit.png' %}">
 
     <!-- Incluye la hoja de estilo de Bootstrap desde un CDN -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
@@ -25,8 +27,8 @@
             background-color: #101556;
             border-radius: 10px;
             padding: 20px;
-            width: 100%; /* Cambia el valor del ancho según tus necesidades */
-            max-width: 1200px; /* Opcional: establece un ancho máximo para el main-container */
+            width: 100%;
+            max-width: 1200px;
         }
 
         /* Estilos personalizados para el contenedor del menú */
@@ -41,7 +43,7 @@
             background-color: #44406b;
             border-radius: 5px;
             padding: 20px;
-            margin-top: 20px; /* Espacio entre los contenedores y el menú */
+            margin-top: 20px;
         }
 
         /* Estilos personalizados para el título */
@@ -49,13 +51,13 @@
             background-color: #28264e;
             border-radius: 5px;
             padding: 20px;
-            text-align: center; /* Alinea el contenido al centro */
+            text-align: center;
         }
 
         #titulo {
             color: #fff;
-            font-size: 36px; /* Ajusta el tamaño de fuente según tu preferencia */
-            margin: 0; /* Elimina el margen superior e inferior predeterminado del encabezado */
+            font-size: 36px;
+            margin: 0;
         }
 
         /* Añadir una clase personalizada para igualar el ancho de los elementos */
@@ -72,10 +74,10 @@
             color: #fff;
             text-decoration: none;
             transition: color 1s;
-            display: flex; /* Utiliza flexbox para centrar verticalmente el contenido */
-            align-items: center; /* Centra verticalmente el contenido */
-            justify-content: center; /* Centra horizontalmente el contenido */
-            height: 100%; /* Asegura que los elementos ocupen todo el alto del contenedor */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
         }
 
         .menu-item a:hover {
@@ -92,7 +94,7 @@
             font-size: 16px;
             cursor: pointer;
             width: 100%;
-            transition: box-shadow 0.3s; /* Agregar transición para el efecto de sombra */
+            transition: box-shadow 0.3s;
         }
 
         .custom-button:hover {
@@ -168,7 +170,7 @@
                         <div class="row mt-3">
                             <div class="col-12">
                                 <form method="get" action="{% url 'requests' %}">
-                                    <input type="hidden" name="action" value="consultar-hashtags">  <!-- Agrega este campo oculto -->
+                                    <input type="hidden" name="action" value="consultar-hashtags">
                                     <input type="hidden" name="date_1" id="date_1" value="">
                                     <input type="hidden" name="date_2" id="date_2" value="">
                                     <button class="custom-button" disabled>Consultar Hashtags</button>
@@ -176,7 +178,7 @@
                             </div>
                             <div class="col-12">
                                 <form method="get" action="{% url 'requests' %}">
-                                    <input type="hidden" name="action" value="consultar-menciones">  <!-- Agrega este campo oculto -->
+                                    <input type="hidden" name="action" value="consultar-menciones">
                                     <input type="hidden" name="date_1" id="date_1" value="">
                                     <input type="hidden" name="date_2" id="date_2" value="">
                                     <button class="custom-button" disabled>Consultar Menciones</button>
@@ -184,7 +186,7 @@
                             </div>
                             <div class="col-12">
                                 <form method="get" action="{% url 'requests' %}">
-                                    <input type="hidden" name="action" value="consultar-sentimientos">  <!-- Agrega este campo oculto -->
+                                    <input type="hidden" name="action" value="consultar-sentimientos">
                                     <input type="hidden" name="date_1" id="date_1" value="">
                                     <input type="hidden" name="date_2" id="date_2" value="">
                                     <button class="custom-button" disabled>Consultar Sentimientos en Mensajes</button>
@@ -192,14 +194,39 @@
                             </div>
                             <div class="col-12">
                                 <form method="get" action="{% url 'requests' %}">
-                                    <input type="hidden" name="action" value="grafica">  <!-- Agrega este campo oculto -->
+                                    <input type="hidden" name="action" value="grafica">
                                     <input type="hidden" name="date_1" id="date_1" value="">
                                     <input type="hidden" name="date_2" id="date_2" value="">
                                     <button class="custom-button" disabled>Gráfica</button>
                                 </form>
                             </div>
                         </div>
+                        <!-- Botón para abrir el cuadro emergente -->
+                        <div class="row mt-3">
+                            <div class="col-12">
+                                <button class="custom-button" id="open-popup-button">Ayuda</button>
+                            </div>
+                        </div>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cuadro emergente (modal) -->
+    <div id="custom-modal" class="modal" style="display: none;">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Opciones</h5>
+                    <button type="button" id="close-modal-button" class="close" data-dismiss="modal">
+                        <span>&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div id="student-data"></div>
+                    <button class="custom-button" id="show-data-button">Mostrar Datos del Estudiante</button>
+                    <button class="custom-button" id="open-pdf-button">Abrir PDF</button>
                 </div>
             </div>
         </div>
@@ -230,6 +257,35 @@
                 buttons.forEach(button => button.setAttribute("disabled", "true"));
             }
         }
+    </script>
+
+    <!-- Script para el cuadro emergente y la apertura de PDF -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const openPopupButton = document.getElementById("open-popup-button");
+            const modal = document.getElementById("custom-modal");
+            const showDataButton = document.getElementById("show-data-button");
+            const openPDFButton = document.getElementById("open-pdf-button");
+
+            openPopupButton.addEventListener("click", function () {
+                modal.style.display = "block";
+            });
+
+            const closeButton = document.getElementById("close-modal-button");
+            closeButton.addEventListener("click", function () {
+                modal.style.display = "none";
+            });
+
+            showDataButton.addEventListener("click", function () {
+                const studentDataDiv = document.getElementById("student-data");
+                studentDataDiv.innerHTML = "Nombre: Diego Josue Guevara Abaj<br>Carner: 202207639<br>Curso: IPC2";
+            });
+
+            openPDFButton.addEventListener("click", function () {
+                const pdfUrl = "{% url 'show_pdf' %}";
+                window.open(pdfUrl, "_blank");
+            });
+        });
     </script>
 
     <script>
