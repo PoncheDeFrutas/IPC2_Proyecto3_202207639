@@ -44,7 +44,54 @@ def extract_feelings(response_data):
 
 def save_messages_in_db(messages):
     try:
+        # Crear un nuevo archivo XML para el resumen de mensajes
+        summary_root = Et.Element('MENSAJES_RECIBIDOS')
+        tree_summary = Et.ElementTree(summary_root)
+
+        for message in messages:
+            obj_message = Et.Element("TIEMPO")
+
+            date = message["FECHA"]
+
+            date_element = Et.Element("FECHA")
+            date_element.text = date
+
+            msj_recibidos_element = Et.Element("MSJ_RECIBIDOS")
+            msj_recibidos_element.text = "1"
+
+            users_set = set()  # Conjunto para evitar usuarios duplicados
+            for user in re.findall(r'@[\w_]+', message["TEXTO"].lower()):
+                user = user.lower()  # Convierte el usuario a minúsculas
+                users_set.add(user)
+
+            usr_mencionados_element = Et.Element("USR_MENCIONADOS")
+            usr_mencionados_element.text = str(len(users_set))
+
+            hashtags_set = set()  # Conjunto para evitar hashtags duplicados
+            for hashtag in re.findall(r'#\w+#', message["TEXTO"].lower()):
+                hashtags_set.add(hashtag)
+
+            hash_incluidos_element = Et.Element("HASH_INCLUIDOS")
+            hash_incluidos_element.text = str(len(hashtags_set))
+
+            obj_message.append(date_element)
+            obj_message.append(msj_recibidos_element)
+            obj_message.append(usr_mencionados_element)
+            obj_message.append(hash_incluidos_element)
+
+            summary_root.append(obj_message)
+
+        # Formatear el XML del resumen antes de guardarlo
+        xml_summary_string = Et.tostring(summary_root, encoding='utf-8')
+        xml_summary_pretty = minidom.parseString(xml_summary_string).toprettyxml(indent='    ')
+
+        # Guardar el resumen en un nuevo archivo XML
+        summary_filename = 'database/summary.xml'
+        with open(summary_filename, 'w', encoding='utf-8') as summary_file:
+            summary_file.write(xml_summary_pretty)
+
         try:
+            # Ahora, actualizar la base de datos original (messages.xml) con los mensajes nuevos
             tree = Et.parse('database/messages.xml')
             root = tree.getroot()
         except FileNotFoundError:
@@ -77,16 +124,25 @@ def save_messages_in_db(messages):
             text_element.text = text_unidecode
 
             users_element = Et.Element("USUARIOS")
+            users_set = set()  # Conjunto para evitar usuarios duplicados
+
             for user in re.findall(r'@[\w_]+', text_unidecode):
-                user_element = Et.Element('USUARIO')
-                user_element.text = user
-                users_element.append(user_element)
+                user = user.lower()  # Convierte el usuario a minúsculas
+                if user not in users_set:
+                    user_element = Et.Element('USUARIO')
+                    user_element.text = user
+                    users_element.append(user_element)
+                    users_set.add(user)
 
             hashtags_element = Et.Element("HASHTAGS")
+            hashtags_set = set()  # Conjunto para evitar hashtags duplicados
+
             for hashtag in re.findall(r'#\w+#', text_unidecode):
-                hashtag_element = Et.Element("HASHTAG")
-                hashtag_element.text = hashtag
-                hashtags_element.append(hashtag_element)
+                if hashtag not in hashtags_set:
+                    hashtag_element = Et.Element("HASHTAG")
+                    hashtag_element.text = hashtag
+                    hashtags_element.append(hashtag_element)
+                    hashtags_set.add(hashtag)
 
             obj_message.append(date_element)
             obj_message.append(dd_mm_yyyy_element)
@@ -98,15 +154,49 @@ def save_messages_in_db(messages):
 
         format_xml(root)
 
-        # Formatear el XML antes de guardarlo
+        # Formatear el XML original antes de guardarlo
         xml_string = Et.tostring(root, encoding='utf-8')
         xml_pretty = minidom.parseString(xml_string).toprettyxml(indent='    ')
 
         with open('database/messages.xml', 'w', encoding='utf-8') as xml_file:
             xml_file.write(xml_pretty)
-        return {'correct': 'Mensajes Actualizados'}
+        
+        tree = Et.parse('database/messages.xml')
+        root = tree.getroot()
+
+        # Ordenar los elementos <MENSAJE> por la etiqueta <dd_mm_yyyy>
+        root[:] = sorted(root, key=lambda mensaje: datetime.strptime(mensaje.find('dd_mm_yyyy').text, '%d/%m/%Y'))
+
+        # Guardar el archivo XML ordenado
+        tree.write('database/messages.xml')
+
+        return xml_summary_pretty
     except json.JSONDecodeError as e:
         return {'error': f"Error al analizar el JSON: {e}"}
+
+
+def order_messages_by_date(filename):
+    # Parsea el archivo XML
+    tree = Et.parse(filename)
+    root = tree.getroot()
+
+    # Obtiene todos los elementos MENSAJE
+    messages = root.findall("MENSAJE")
+
+    # Ordena los elementos MENSAJE por la fecha "dd_mm_yyyy"
+    messages.sort(key=lambda message: message.find("dd_mm_yyyy").text)
+
+    # Crea un nuevo árbol XML ordenado
+    sorted_root = Et.Element("MENSAJES")
+    sorted_tree = Et.ElementTree(sorted_root)
+
+    # Agrega los elementos MENSAJE ordenados al nuevo árbol XML
+    for message in messages:
+        sorted_root.append(message)
+
+    # Guarda el árbol XML ordenado en un nuevo archivo
+    sorted_filename = "ordered_messages.xml"
+    sorted_tree.write(sorted_filename, encoding="utf-8", xml_declaration=True)
 
 
 def format_xml(element):
@@ -128,6 +218,13 @@ def save_dictionary_in_db(feelings_list):
             root = Et.Element('diccionario')
             tree = Et.ElementTree(root)
 
+        word_count = {
+            'sentimientos_positivos': 0,
+            'sentimientos_negativos': 0,
+            'sentimientos_negativos_rechazados': 0,
+            'sentimientos_positivo_rechazados': 0
+        }
+
         for feeling_data in feelings_list:
             type_feeling = feeling_data["type"]
             feelings = feeling_data["data"]
@@ -139,7 +236,7 @@ def save_dictionary_in_db(feelings_list):
             if type_feeling == "Positive":
                 table_feeling_name_principal = "sentimientos_positivos"
                 table_feeling_name_secondary = "sentimientos_negativos"
-                table_rejected_name = "sentimientos_negativos_rechazados"
+                table_rejected_name = "sentimientos_positivo_rechazados"
             elif type_feeling == "Negative":
                 table_feeling_name_principal = "sentimientos_negativos"
                 table_feeling_name_secondary = "sentimientos_positivos"
@@ -170,8 +267,10 @@ def save_dictionary_in_db(feelings_list):
                 new_feeling.text = feeling
                 if feeling_element_principal is None and feeling_element_secondary is None:
                     type_feeling_element_principal.append(new_feeling)
+                    word_count[table_feeling_name_principal] += 1
                 elif feeling_element_secondary is not None and feeling_element_rejected is None:
                     type_feeling_element_rejected.append(new_feeling)
+                    word_count[table_rejected_name] += 1
 
         # Eliminar espacios en blanco y saltos de línea innecesarios
         format_xml(root)
@@ -183,94 +282,25 @@ def save_dictionary_in_db(feelings_list):
         with open('database/dictionary.xml', 'w', encoding='utf-8') as xml_file:
             xml_file.write(xml_pretty)
 
-        return {'correct': 'Sentimientos agregados al diccionario'}
+        config_recibida = Et.Element("CONFIG_RECIBIDA")
+
+        palabras_positivas = Et.SubElement(config_recibida, "PALABRAS_POSITIVAS")
+        palabras_positivas.text = str(word_count["sentimientos_positivos"])
+
+        palabras_positivas_rechazada = Et.SubElement(config_recibida, "PALABRAS_POSITIVAS_RECHAZADA")
+        palabras_positivas_rechazada.text = str(word_count["sentimientos_positivo_rechazados"])
+
+        palabras_negativas = Et.SubElement(config_recibida, "PALABRAS_NEGATIVAS")
+        palabras_negativas.text = str(word_count["sentimientos_negativos"])
+
+        palabras_negativas_rechazada = Et.SubElement(config_recibida, "PALABRAS_NEGATIVAS_RECHAZADA")
+        palabras_negativas_rechazada.text = str(word_count["sentimientos_negativos_rechazados"])
+
+        xml_output = Et.tostring(config_recibida, encoding="utf-8")
+        xml_pretty = minidom.parseString(xml_output).toprettyxml(indent='    ')
+
+        return xml_pretty
     except Exception as e:
         return {'error': f"Error al agregar sentimientos: {str(e)}"}
     except json.JSONDecodeError as e:
         return {'error': f"Error al analizar el JSON: {e}"}
-
-
-def generate_resume_config():
-    try:
-        tree = Et.parse("database/dictionary.xml")
-        root = tree.getroot()
-
-        positive_feelings = 0
-        negative_feelings = 0
-        positive_rejected = 0
-        negative_rejected = 0
-
-        for feeling in root:
-            if feeling.tag == "sentimientos_positivos":
-                positive_feelings = len(feeling)
-            elif feeling.tag == "sentimientos_negativos":
-                negative_feelings = len(feeling)
-            elif feeling.tag ==  "sentimientos_negativos_rechazados":
-                negative_rejected = len(feeling)
-            elif feeling.tag == "sentimientos_positivos_rechazados":
-                positive_rejected = len(feeling)
-        
-        config_element = Et.Element('CONFIG_RECIBIDA')
-        Et.SubElement(config_element, 'PALABRAS_POSITIVAS').text = str(positive_feelings)
-        Et.SubElement(config_element, 'PALABRAS_POSITIVAS_RECHAZADA').text = str(positive_rejected)
-        Et.SubElement(config_element, 'PALABRAS_NEGATIVAS').text = str(negative_feelings)
-        Et.SubElement(config_element, 'PALABRAS_NEGATIVAS_RECHAZADA').text = str(negative_rejected)
-
-
-        xml_string = Et.tostring(config_element, encoding='utf-8')
-        xml_pretty = minidom.parseString(xml_string).toprettyxml(indent='    ')
-
-        # Guardar el nuevo archivo XML
-        with open('database/resumenConfig.xml', 'w', encoding='utf-8') as xml_file:
-            xml_file.write(xml_pretty)
-        
-        result = {'correct': xml_pretty}
-    except Exception as e:
-        result = {'error': str(e)}
-    
-    return result
-
-
-def generate_resume_messages():
-    try:
-        # Parsea el XML de entrada
-        tree = Et.parse("database/messages.xml")
-        root = tree.getroot()
-
-        # Estructura para almacenar el conteo de mensajes por fecha, usuarios y hashtags
-        count_data = defaultdict(lambda: {'MSJ_RECIBIDOS': 0, 'USR_MENCIONADOS': set(), 'HASH_INCLUIDOS': set()})
-
-        # Procesa cada mensaje
-        for mensaje in root.findall('.//MENSAJE'):
-            fecha = mensaje.find('dd_mm_yyyy').text
-            usuarios = [usuario.text for usuario in mensaje.findall('.//USUARIO')]
-            hashtags = [hashtag.text for hashtag in mensaje.findall('.//HASHTAG')]
-
-            # Actualiza los conteos
-            count_data[fecha]['MSJ_RECIBIDOS'] += 1
-            count_data[fecha]['USR_MENCIONADOS'].update(usuarios)
-            count_data[fecha]['HASH_INCLUIDOS'].update(hashtags)
-
-        # Crea el nuevo XML con los datos de conteo
-        result_root = Et.Element('MENSAJES_RECIBIDOS')
-
-        for fecha, conteo in count_data.items():
-            tiempo = Et.SubElement(result_root, 'TIEMPO')
-            Et.SubElement(tiempo, 'FECHA').text = fecha
-            Et.SubElement(tiempo, 'MSJ_RECIBIDOS').text = str(conteo['MSJ_RECIBIDOS'])
-            Et.SubElement(tiempo, 'USR_MENCIONADOS').text = str(len(conteo['USR_MENCIONADOS']))
-            Et.SubElement(tiempo, 'HASH_INCLUIDOS').text = str(len(conteo['HASH_INCLUIDOS']))
-
-        # Genera el nuevo archivo XML
-        result_tree = Et.ElementTree(result_root)
-        xml_string = Et.tostring(result_root, encoding='utf-8')
-        xml_pretty = minidom.parseString(xml_string).toprettyxml(indent='    ')
-
-        with open("database/resumenMensajes.xml", 'w', encoding='utf-8') as xml_file:
-            xml_file.write(xml_pretty)
-
-        resultado = {'correct': xml_pretty}
-    except Exception as e:
-        resultado = {'error': str(e)}
-    
-    return resultado

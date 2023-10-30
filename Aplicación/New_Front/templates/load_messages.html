@@ -171,7 +171,17 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    {{ server_response_message }}
+                    <h2>Mensajes Recibidos</h2>
+                    <ul>
+                        {% for tiempo in server_response_message.TIEMPO %}
+                        <li>
+                            <strong>Fecha:</strong> {{ tiempo.FECHA }}<br>
+                            <strong>Mensajes Recibidos:</strong> {{ tiempo.MSJ_RECIBIDOS }}<br>
+                            <strong>Usuarios Mencionados:</strong> {{ tiempo.USR_MENCIONADOS }}<br>
+                            <strong>Hash Incluidos:</strong> {{ tiempo.HASH_INCLUIDOS }}<br>
+                        </li>
+                        {% endfor %}
+                    </ul>
                 </div>
             </div>
         </div>
