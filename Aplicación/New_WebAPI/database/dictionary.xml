@@ -37,4 +37,5 @@
     <sentimientos_negativos_rechazados>
         <palabra>logro</palabra>
     </sentimientos_negativos_rechazados>
+    <sentimientos_positivo_rechazados/>
 </diccionario>

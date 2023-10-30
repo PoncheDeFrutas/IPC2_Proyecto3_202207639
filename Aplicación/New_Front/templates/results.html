@@ -1,9 +1,11 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Resultados</title>
+    <link rel="icon" type="image/png" href="{% static 'images/orbit.png' %}">
 
     <!-- Incluye la hoja de estilo de Bootstrap desde un CDN -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
@@ -13,7 +15,6 @@
         /* Estilos personalizados para el fondo y colores de la página */
         body {
             background-color: #0d0a17;
-            height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -25,29 +26,7 @@
             background-color: #101556;
             border-radius: 10px;
             padding: 20px;
-            width: 100%; /* Cambia el valor del ancho según tus necesidades */
-        }
-
-        /* Estilos personalizados para el contenedor del menú */
-        #menu-container {
-            background-color: #44406b;
-            border-radius: 5px;
-            padding: 20px;
-        }
-
-        /* Estilos personalizados para el menú */
-        .menu-item a {
-            color: #fff;
-            text-decoration: none;
-            transition: color 1s;
-            display: flex; /* Utiliza flexbox para centrar verticalmente el contenido */
-            align-items: center; /* Centra verticalmente el contenido */
-            justify-content: center; /* Centra horizontalmente el contenido */
-            height: 100%; /* Asegura que los elementos ocupen todo el alto del contenedor */
-        }
-
-        .menu-item a:hover {
-            color: #ccc;
+            width: auto;
         }
 
         /* Estilos personalizados para el contenedor del título */
@@ -71,13 +50,32 @@
             flex: 1;
         }
 
+        /* Estilos personalizados para el contenedor del menú */
+        #menu-container {
+            background-color: #44406b;
+            border-radius: 5px;
+            padding: 20px;
+        }
+
+        /* Estilos personalizados para el menú */
+        .menu-item a {
+            color: #fff;
+            text-decoration: none;
+            transition: color 1s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .menu-item a:hover {
+            color: #ccc;
+        }
+
         /* Estilos personalizados para el fondo del contenedor de datos */
         #data-container {
             background-color: #28264e;
             padding: 20px;
             border-radius: 5px;
-            max-height: 40vh; /* Altura máxima para el contenedor de datos */
-            overflow-y: auto; /* Agrega barras de desplazamiento vertical si es necesario */
         }
 
         /* Estilos personalizados para los datos cargados dinámicamente */
@@ -90,14 +88,25 @@
         }
 
         #data-container h2.custom-text-color {
-            color: white; /* Color de texto personalizado */
-            font-size: 16px; /* Cambia el valor según tus preferencias */
+            color: white;
+            font-size: 16px;
         }
 
         #data-container .custom-text-color {
-            color: white; /* Color de texto personalizado */
+            color: white;
+        }
+
+        /* Estilos para el container de gráficos */
+        #chart-container {
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 5px;
         }
     </style>
+
+    <!-- Otras etiquetas meta y enlaces CSS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.3.1/html2canvas.min.js"></script>
 </head>
 <body>
     <!-- Un indicador de carga -->
@@ -117,7 +126,7 @@
                         <h1 id="titulo" class="text-center mb-4">Resultados</h1>
                     </div>
                 </div>
-                <!-- Contenedor del menú con diseño de ancho igualado -->
+                <!-- Contenedor del menú con diseño de ancho automático -->
                 <div class="col-12">
                     <div id="menu-container">
                         <div class="container">
@@ -141,38 +150,78 @@
                         </div>
                     </div>
                 </div>
-                <!-- Contenedor de los datos formateados -->
+                <!-- Primer data-container (para mostrar contenido de texto) -->
                 <div class="col-12">
-                    <div id="data-container">
-                        <!-- Utiliza un bucle for para recorrer los datos formateados -->
-                        {% for entry in formatted_data %}
-                            <h2 class="custom-text-color">Fecha: {{ entry.date }}</h2>
-                            {% if entry.data_type == 'Hashtags' %}
-                                <ul>
-                                    <!-- Utiliza un bucle for para recorrer los hashtags -->
-                                    {% for item in entry.items %}
-                                        <li class="custom-text-color">{{ forloop.counter }}. {{ item.0 }} : {{ item.1 }} mensajes</li>
+                    <div id="data-container" style="color: white;">
+                        {% if formatted_data.data_type == 'hashtags' %}
+                            <h2 style="color: white;">Hashtags por Fecha:</h2>
+                            <ul>
+                                {% if formatted_data.data.dates %}
+                                    {% for date, hashtags in formatted_data.data.dates.items %}
+                                        <li>
+                                            <strong style="color: white;">Fecha: {{ date }}</strong>
+                                            <ul>
+                                                {% for hashtag, count in hashtags.items %}
+                                                    <li>
+                                                        <strong style="color: white;">Hashtag:</strong> {{ hashtag }}, <strong style="color: white;">Veces:</strong> {{ count }}
+                                                    </li>
+                                                {% endfor %}
+                                            </ul>
+                                        </li>
                                     {% endfor %}
-                                </ul>
-                            {% elif entry.data_type == 'Usuarios' %}
-                                <ul>
-                                    <!-- Utiliza un bucle for para recorrer los usuarios -->
-                                    {% for item in entry.items %}
-                                        <li class="custom-text-color">{{ forloop.counter }}. {{ item.0 }} : {{ item.1 }} mensajes</li>
+                                {% else %}
+                                    <li style="color: white;">No hay nada que mostrar</li>
+                                {% endif %}
+                            </ul>
+                        {% elif formatted_data.data_type == 'usuarios' %}
+                            <h2 style="color: white;">Usuarios por Fecha:</h2>
+                            <ul>
+                                {% if formatted_data.data.dates %}
+                                    {% for date, users in formatted_data.data.dates.items %}
+                                        <li>
+                                            <strong style="color: white;">Fecha: {{ date }}</strong>
+                                            <ul>
+                                                {% for user, count in users.items %}
+                                                    <li>
+                                                        <strong style="color: white;">Usuario:</strong> {{ user }}, <strong style="color: white;">Veces:</strong> {{ count }}
+                                                    </li>
+                                                {% endfor %}
+                                            </ul>
+                                        </li>
                                     {% endfor %}
-                                </ul>
-                            {% elif entry.data_type == 'Sentimientos' %}
-                                <p class="custom-text-color">Mensajes con sentimiento positivo: {{ entry.items.0.1 }} mensajes</p>
-                                <p class="custom-text-color">Mensajes con sentimiento negativo: {{ entry.items.1.1 }} mensajes</p>
-                                <p class="custom-text-color">Mensajes neutros: {{ entry.items.2.1 }} mensaje{% if entry.items.2.1 != 1 %}s{% endif %}</p>
-                            {% else %}
-                                <p class="custom-text-color">No hay datos disponibles para esta fecha.</p>
-                            {% endif %}
-                        {% endfor %}
-                        <!-- Mensaje cuando no hay datos que mostrar -->
-                        {% if formatted_data|length == 0 %}
-                            <p class="text-center custom-text-color">No hay datos que mostrar</p>
+                                {% else %}
+                                    <li style="color: white;">No hay nada que mostrar</li>
+                                {% endif %}
+                            </ul>
+                        {% elif formatted_data.data_type == 'sentimientos' %}
+                            <h2 style="color: white;">Sentimientos por Fecha:</h2>
+                            <ul>
+                                {% if formatted_data.data.dates %}
+                                    {% for date, sentiments in formatted_data.data.dates.items %}
+                                        <li>
+                                            <strong style="color: white;">Fecha: {{ date }}</strong>
+                                            <ul>
+                                                {% for sentiment, count in sentiments.items %}
+                                                    <li>
+                                                        <strong style="color: white;">Sentimiento:</strong> {{ sentiment }}, <strong style="color: white;">:</strong> {{ count }}
+                                                    </li>
+                                                {% endfor %}
+                                            </ul>
+                                        </li>
+                                    {% endfor %}
+                                {% else %}
+                                    <li style="color: white;">No hay nada que mostrar</li>
+                                {% endif %}
+                            </ul>
                         {% endif %}
+                    </div>
+                </div>
+                <!-- Segundo data-container (para mostrar gráficos) -->
+                <div class="col-12">
+                    <div id="chart-container">
+                        <!-- Botón para guardar la gráfica como PDF -->
+                        <button id="save-pdf-button" class="btn btn-primary">Guardar como PDF</button>
+                        <canvas id="chart"></canvas>
                     </div>
                 </div>
             </div>
@@ -187,7 +236,74 @@
         });
     </script>
 
-    <!-- Incluye el archivo JavaScript de Bootstrap desde un CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Incluye el archivo JavaScript de Chart.js desde un CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.4"></script>
+
+    <!-- Script para mostrar el gráfico -->
+    <script>
+        // Datos de ejemplo del resume
+        var resumeData = {{ formatted_data.data.resume|safe }};
+
+        // Obtiene las etiquetas y los valores del resume
+        var labels = Object.keys(resumeData);
+        var values = Object.values(resumeData);
+
+        // Colores personalizados para cada columna
+        var barColors = ['rgba(75, 192, 192, 0.2)', 'rgba(255, 99, 132, 0.2)', 'rgba(54, 162, 235, 0.2)', 'rgba(255, 206, 86, 0.2'];
+
+        // Colores de borde para cada columna
+        var borderColors = ['rgba(75, 192, 192, 1)', 'rgba(255, 99, 132, 1)', 'rgba(54, 162, 235, 1)', 'rgba(255, 206, 86, 1)'];
+
+        // Modificar las etiquetas para agregar los valores
+        var labelsWithValues = labels.map((label, index) => `${label}: ${values[index]}`);
+
+        // Configura el contexto del gráfico
+        var ctx = document.getElementById('chart').getContext('2d');
+
+        // Crea un gráfico de barras
+        var chart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labelsWithValues, // Etiquetas modificadas con valores
+                datasets: [{
+                    label: 'Conteo',
+                    data: values.map(Number), // Asegura que los datos sean números enteros
+                    backgroundColor: barColors.slice(0, values.length),
+                    borderColor: borderColors.slice(0, values.length),
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    yAxes: [{
+                        ticks: {
+                            beginAtZero: true,
+                            stepSize: 1 // Paso de 1 para mostrar números enteros en el eje y
+                        }
+                    }]
+                }
+            }
+        });
+    </script>
+    <script>
+        // Función para guardar la gráfica como PDF
+        document.getElementById('save-pdf-button').addEventListener('click', function () {
+            console.log('Botón de guardar como PDF fue clickeado');
+            // Selecciona el contenedor de la gráfica que deseas guardar como PDF
+            const chartContainer = document.getElementById('chart-container');
+
+            // Utiliza html2canvas para capturar el contenedor de la gráfica como una imagen
+            html2canvas(chartContainer).then(function(canvas) {
+                // Crea un nuevo objeto jspdf
+                const pdf = new jsPDF('p', 'mm', 'a4');
+
+                // Agrega la imagen de la gráfica al PDF
+                pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, 210, 297);
+
+                // Guarda el PDF con un nombre deseado (puedes personalizarlo)
+                pdf.save('grafica.pdf');
+            });
+        });
+    </script>
 </body>
 </html>

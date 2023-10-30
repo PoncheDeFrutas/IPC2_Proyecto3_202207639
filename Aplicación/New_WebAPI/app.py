@@ -1,6 +1,6 @@
 from flask_cors import CORS
 from datetime import datetime
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, Response
 from request.file_requests import *
 from request.database_requests import *
 
@@ -23,16 +23,19 @@ def save_messages():
         files_json = process_xml_files()
         messages = extract_messages(files_json)
         response = save_messages_in_db(messages)
-        return jsonify(response)
+
+        # Crear una respuesta HTTP con el contenido XML y la cabecera Content-Type
+        return Response(response, content_type='application/xml')
+
     except Exception as e:
-        return jsonify({'error': f'Error al procesar los archivos XML---: {str(e)}'}), 500
+        return jsonify({'error': f'Error al procesar los archivos XML: {str(e)}'}), 500
 
 
 @app.route('/grabarConfiguraciones', methods=['POST'])
 def save_directory():
     try:
         response = save_dictionary_in_db(extract_feelings(process_xml_files()))
-        return jsonify(response)
+        return Response(response, content_type='application/xml')
     except Exception as e:
         return jsonify({'error': f'Error al procesar los archivos XML------: {str(e)}'}), 500
 
@@ -65,7 +68,7 @@ def return_data():
     elif date_one < date_two:
         return {'dates': [date_one, date_two]}
     else:
-        return {'error': f"{date_one} es igual a {date_two}"}
+        return {'dates': [date_one, date_two]}
 
 
 # Rutas para devolver hashtags, menciones y sentimientos
@@ -78,8 +81,17 @@ def return_hashtags():
     else:
         correct_data = data['dates']
         response = get_hashtags_by_date_range(correct_data[0], correct_data[1])
-        return response
 
+        # Procesar los resultados de hashtags para obtener la cantidad total
+        total_hashtags = {}
+        for date_data in response.values():
+            for hashtag, count in date_data.items():
+                if hashtag in total_hashtags:
+                    total_hashtags[hashtag] += count
+                else:
+                    total_hashtags[hashtag] = count
+
+        return jsonify({'dates': response, 'resume': total_hashtags})
 
 @app.route('/devolverMenciones', methods=['GET'])
 def return_mentions():
@@ -91,7 +103,16 @@ def return_mentions():
     else:
         correct_data = data['dates']
         response = get_users_by_date_range(correct_data[0], correct_data[1])
-        return response
+
+        # Procesar los resultados de menciones para obtener la cantidad total
+        total_mentions = {}
+        for date_data in response.values():
+            for mention, count in date_data.items():
+                if mention in total_mentions:
+                    total_mentions[mention] += count
+                else:
+                    total_mentions[mention] = count
+        return jsonify({'dates': response, 'resume': total_mentions})
 
 
 @app.route('/devolverSentimientos', methods=['GET'])
@@ -104,7 +125,13 @@ def return_sentiments():
     else:
         correct_data = data['dates']
         response = classify_messages(correct_data[0], correct_data[1])
-        return response
+        # Procesar los resultados de sentimientos para obtener la cantidad total
+        total_sentiments = {'Negativo': 0, 'Neutro': 0, 'Positivo': 0}
+        for date_data in response.values():
+            for sentiment, count in date_data.items():
+                total_sentiments[sentiment] += count
+
+        return jsonify({'dates': response, "resume": total_sentiments})
 
 
 @app.route('/devolverTodo', methods=['GET'])
@@ -147,9 +174,6 @@ def get_all():
             total_sentiments[sentiment] += count
 
     return jsonify({'hashtags': total_hashtags, 'mentions': total_mentions, 'sentiments': total_sentiments})
-
-
-
 
 
 
