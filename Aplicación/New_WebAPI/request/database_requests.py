@@ -8,7 +8,7 @@ def get_users_by_date_range(start_date, end_date):
         tree = Et.parse('database/messages.xml')
         root = tree.getroot()
 
-        users_by_date = {}  # Eliminamos el nivel "fechas"
+        users_by_date = {}  # Diccionario para almacenar datos de usuarios por fecha
 
         for message in root.findall('MENSAJE'):
             date_element = message.find('dd_mm_yyyy')
@@ -22,24 +22,23 @@ def get_users_by_date_range(start_date, end_date):
                     users_element = message.find('USUARIOS')
 
                     if users_element is not None:
-                        if date_str not in users_by_date:
-                            users_by_date[date_str] = {}  # Almacenamos directamente bajo la fecha
-
                         for user in users_element.findall('USUARIO'):
                             username = user.text
 
-                            if username in users_by_date[date_str]:
-                                users_by_date[date_str][username] += 1
+                            if date_str in users_by_date:
+                                if username in users_by_date[date_str]:
+                                    users_by_date[date_str][username] += 1
+                                else:
+                                    users_by_date[date_str][username] = 1
                             else:
-                                users_by_date[date_str][username] = 1
+                                users_by_date[date_str] = {username: 1}
 
-        return json.dumps(users_by_date, indent=4, ensure_ascii=False)
+        return users_by_date  # Devuelve un diccionario en lugar de una cadena JSON
 
     except FileNotFoundError:
-        return json.dumps({'error': 'El archivo messages.xml no se encontró'}, indent=4, ensure_ascii=False)
+        return {'error': 'El archivo messages.xml no se encontró'}
     except Exception as e:
-        return json.dumps({'error': str(e)}, indent=4, ensure_ascii=False)
-
+        return {'error': str(e)}
 
 def get_hashtags_by_date_range(start_date, end_date):
     try:
@@ -71,7 +70,7 @@ def get_hashtags_by_date_range(start_date, end_date):
                             else:
                                 hashtags_by_date[date_str] = {hashtag_text: 1}
 
-        return json.dumps(hashtags_by_date, indent=4, ensure_ascii=False)
+        return hashtags_by_date  # Devuelve un diccionario en lugar de una cadena JSON
 
     except FileNotFoundError:
         return {'error': 'El archivo messages.xml no se encontró'}

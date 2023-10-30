@@ -160,6 +160,7 @@
     </div>
 
     <!-- Modal para mostrar la respuesta del servidor -->
+    <!-- Modal para mostrar la respuesta del servidor -->
     {% if server_response_message %}
     <div class="modal" tabindex="-1" role="dialog" style="display: block;">
         <div class="modal-dialog" role="document">
@@ -171,12 +172,21 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    {{ server_response_message }}
+                    <h2>Configuración</h2>
+                    <ul>
+                        <li>
+                            <strong>Palabras Positivas:</strong> {{ server_response_message.PALABRAS_POSITIVAS }}<br>
+                            <strong>Palabras Positivas Rechazadas:</strong> {{ server_response_message.PALABRAS_POSITIVAS_RECHAZADA }}<br>
+                            <strong>Palabras Negativas:</strong> {{ server_response_message.PALABRAS_NEGATIVAS }}<br>
+                            <strong>Palabras Negativas Rechazadas:</strong> {{ server_response_message.PALABRAS_NEGATIVAS_RECHAZADA }}<br>
+                        </li>
+                    </ul>
                 </div>
             </div>
         </div>
     </div>
     {% endif %}
+
 
     <!-- Script para mostrar elementos después de la carga de la página -->
     <script>

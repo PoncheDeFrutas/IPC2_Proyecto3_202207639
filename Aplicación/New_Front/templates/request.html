@@ -105,6 +105,12 @@
         label[for="fecha-inicial"], label[for="fecha-final"] {
             color: #fff;
         }
+
+        /* Estilos personalizados para el mensaje de error */
+        #error-message {
+            color: red;
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
@@ -165,6 +171,10 @@
                                 <label for="fecha-final">Fecha Final:</label>
                                 <input type="date" id="fecha-final" class="form-control">
                             </div>
+                        </div>
+                        <!-- Mensaje de error -->
+                        <div class="row">
+                            <div class="col-12" id="error-message"></div>
                         </div>
                         <!-- Botones en una lista vertical -->
                         <div class="row mt-3">
@@ -236,25 +246,34 @@
     <script>
         const fechaInicialInput = document.getElementById("fecha-inicial");
         const fechaFinalInput = document.getElementById("fecha-final");
+        const errorElement = document.getElementById("error-message");
+        const buttons = document.querySelectorAll(".custom-button");
 
         fechaInicialInput.addEventListener("input", enableButtons);
         fechaFinalInput.addEventListener("input", enableButtons);
 
         function enableButtons() {
-            const date_1 = fechaInicialInput.value;
-            const date_2 = fechaFinalInput.value;
-            const buttons = document.querySelectorAll(".custom-button");
+            const date1 = new Date(fechaInicialInput.value);
+            const date2 = new Date(fechaFinalInput.value);
 
-            if (date_1 && date_2) {
+            if (date2 < date1) {
+                errorElement.textContent = "La Fecha Final debe ser mayor que la Fecha Inicial";
                 buttons.forEach(button => {
-                    button.removeAttribute("disabled");
+                    button.setAttribute("disabled", "true"); // Deshabilita los botones
                     // Actualiza los valores de date_1 y date_2 en los formularios
                     const form = button.parentElement;
-                    form.querySelector("#date_1").value = date_1;
-                    form.querySelector("#date_2").value = date_2;
+                    form.querySelector("#date_1").value = fechaInicialInput.value;
+                    form.querySelector("#date_2").value = fechaFinalInput.value;
                 });
             } else {
-                buttons.forEach(button => button.setAttribute("disabled", "true"));
+                errorElement.textContent = ""; // Borra el mensaje de error
+                buttons.forEach(button => {
+                    button.removeAttribute("disabled"); // Habilita los botones
+                    // Actualiza los valores de date_1 y date_2 en los formularios
+                    const form = button.parentElement;
+                    form.querySelector("#date_1").value = fechaInicialInput.value;
+                    form.querySelector("#date_2").value = fechaFinalInput.value;
+                });
             }
         }
     </script>
