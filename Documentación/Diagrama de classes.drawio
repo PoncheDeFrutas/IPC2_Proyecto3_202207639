@@ -1,0 +1,35 @@
+<mxfile host="Electron" modified="2023-11-03T02:51:16.804Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/22.0.2 Chrome/114.0.5735.289 Electron/25.8.4 Safari/537.36" etag="uJZTSdNvEzf9Qr1uulcx" version="22.0.2" type="device">
+  <diagram name="Página-1" id="JXST8KY2p2teBRgOs-h8">
+    <mxGraphModel dx="2911" dy="774" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1654" pageHeight="2336" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="ELr9EMI219TLID-4VqpR-7" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.25;exitDx=0;exitDy=0;entryX=0;entryY=0.25;entryDx=0;entryDy=0;endArrow=none;endFill=0;" edge="1" parent="1" source="ELr9EMI219TLID-4VqpR-1" target="ELr9EMI219TLID-4VqpR-2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ELr9EMI219TLID-4VqpR-10" value="1" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="ELr9EMI219TLID-4VqpR-7">
+          <mxGeometry x="0.689" y="-1" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ELr9EMI219TLID-4VqpR-11" value="1" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="ELr9EMI219TLID-4VqpR-7">
+          <mxGeometry x="-0.8381" relative="1" as="geometry">
+            <mxPoint y="1" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ELr9EMI219TLID-4VqpR-1" value="&lt;p style=&quot;margin:0px;margin-top:4px;text-align:center;&quot;&gt;&lt;b&gt;Xml_procesor&lt;/b&gt;&lt;/p&gt;&lt;hr size=&quot;1&quot;&gt;&lt;p style=&quot;margin:0 0 0 4px;line-height:1.6;&quot;&gt; request: request&lt;br&gt; response_data: json&lt;/p&gt;&lt;hr size=&quot;1&quot;&gt;&lt;p style=&quot;margin:0 0 0 4px;line-height:1.6;&quot;&gt; __init__(self): None&lt;br&gt; process_xml_files(self, request, type_file): list string&lt;br&gt; extract_messages(self): json&lt;br&gt; extract_feelings(self): json&lt;br&gt; format_xml(self, element): string&lt;br&gt; save_messages_in_db(self, messages): xml&lt;br&gt; save_dictionary_in_db(self, feelings_list): xml&lt;/p&gt;" style="verticalAlign=top;align=left;overflow=fill;fontSize=14;fontFamily=Helvetica;html=1;rounded=0;shadow=0;comic=0;labelBackgroundColor=none;strokeWidth=1;" vertex="1" parent="1">
+          <mxGeometry x="-1610" y="280" width="340" height="270" as="geometry" />
+        </mxCell>
+        <mxCell id="ELr9EMI219TLID-4VqpR-2" value="&lt;p style=&quot;margin:0px;margin-top:4px;text-align:center;&quot;&gt;&lt;b&gt;Data_procesor&lt;/b&gt;&lt;/p&gt;&lt;hr size=&quot;1&quot;&gt;&lt;p style=&quot;margin:0 0 0 4px;line-height:1.6;&quot;&gt; date_one: datetime&lt;br&gt; Data_base: Database&lt;br&gt; date_two: datetime&lt;/p&gt;&lt;hr size=&quot;1&quot;&gt;&lt;p style=&quot;margin:0 0 0 4px;line-height:1.6;&quot;&gt; __init__(self): None&lt;br&gt; format_dates(self, request): list datetime&lt;br&gt; get_hashtags(self, request): json&amp;nbsp;&lt;br&gt; get_mencions(self, request): json&lt;br&gt; get_feelings(self, request): json&lt;br&gt; clear_db(self): json&lt;/p&gt;" style="verticalAlign=top;align=left;overflow=fill;fontSize=14;fontFamily=Helvetica;html=1;rounded=0;shadow=0;comic=0;labelBackgroundColor=none;strokeWidth=1;" vertex="1" parent="1">
+          <mxGeometry x="-1200" y="280" width="280" height="270" as="geometry" />
+        </mxCell>
+        <mxCell id="ELr9EMI219TLID-4VqpR-4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.25;entryDx=0;entryDy=0;endArrow=diamond;endFill=1;" edge="1" parent="1" source="ELr9EMI219TLID-4VqpR-3" target="ELr9EMI219TLID-4VqpR-2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ELr9EMI219TLID-4VqpR-3" value="&lt;p style=&quot;margin:0px;margin-top:4px;text-align:center;&quot;&gt;&lt;b&gt;Data_base&lt;/b&gt;&lt;/p&gt;&lt;hr size=&quot;1&quot;&gt;&lt;p style=&quot;margin:0 0 0 4px;line-height:1.6;&quot;&gt; date_2: datetime&lt;br&gt; date_1: datetime&lt;br&gt; root: root&amp;nbsp;&lt;br&gt; data_type: String&lt;br&gt; sentiment_dict: json&lt;/p&gt;&lt;hr size=&quot;1&quot;&gt;&lt;p style=&quot;margin:0 0 0 4px;line-height:1.6;&quot;&gt; __init__(self): None&lt;br&gt; set_dates(self, date_1, date_2):&amp;nbsp; json&lt;br&gt; process_data(self, data_type): list string&lt;br&gt; get_data_by_date(self): json&lt;br&gt; sentiment_dictionary(self): json&lt;br&gt; get_feelings_by_date(self): json&lt;br&gt; clear_dictionary_db(self): json&lt;br&gt; clear_messages_db(self): json&lt;br&gt; clear_all(self): json&lt;/p&gt;" style="verticalAlign=top;align=left;overflow=fill;fontSize=14;fontFamily=Helvetica;html=1;rounded=0;shadow=0;comic=0;labelBackgroundColor=none;strokeWidth=1;" vertex="1" parent="1">
+          <mxGeometry x="-840" y="280" width="290" height="370" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
