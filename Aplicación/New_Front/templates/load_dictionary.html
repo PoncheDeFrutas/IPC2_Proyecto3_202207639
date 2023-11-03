@@ -186,7 +186,9 @@
         </div>
     </div>
     {% endif %}
-
+    {% if server_response_message != "Error" %}
+        <a href="{% url 'download_xml' %}"></a>
+    {% endif %}
 
     <!-- Script para mostrar elementos después de la carga de la página -->
     <script>

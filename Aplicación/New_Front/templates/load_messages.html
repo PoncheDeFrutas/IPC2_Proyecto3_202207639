@@ -172,22 +172,16 @@
                 </div>
                 <div class="modal-body">
                     <h2>Mensajes Recibidos</h2>
-                    <ul>
-                        {% for tiempo in server_response_message.TIEMPO %}
-                        <li>
-                            <strong>Fecha:</strong> {{ tiempo.FECHA }}<br>
-                            <strong>Mensajes Recibidos:</strong> {{ tiempo.MSJ_RECIBIDOS }}<br>
-                            <strong>Usuarios Mencionados:</strong> {{ tiempo.USR_MENCIONADOS }}<br>
-                            <strong>Hash Incluidos:</strong> {{ tiempo.HASH_INCLUIDOS }}<br>
-                        </li>
-                        {% endfor %}
-                    </ul>
+                    <p>Mensajes actualizados</p>
+
                 </div>
             </div>
         </div>
     </div>
     {% endif %}
-
+    {% if server_response_message != "Error" %}
+        <a href="{% url 'download_xml' %}"></a>
+    {% endif %}
     <!-- Script para mostrar elementos después de la carga de la página -->
     <script>
         window.addEventListener("load", function () {
@@ -210,6 +204,11 @@
         // Cerrar el modal de respuesta del servidor al hacer clic en la "x"
         document.getElementById("close-button").addEventListener("click", function () {
             document.querySelector(".modal").style.display = "none";
+        });
+
+        // Agregar esta parte para activar el modal automáticamente al hacer clic en el enlace de descarga
+        document.getElementById("download-link").addEventListener("click", function () {
+            document.querySelector(".modal").style.display = "block"; // Muestra el modal
         });
     </script>
 

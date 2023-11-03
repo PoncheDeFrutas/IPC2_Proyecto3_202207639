@@ -1,11 +1,14 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.conf import settings
 from requests import post, get
 from datetime import datetime
-import json, os, base64
+import os, base64
 import xml.etree.ElementTree as Et
 import json
+
+xml_string = ""
+
 
 def index(request):
     return render(request, 'index.html')
@@ -17,8 +20,6 @@ def reset_data(request):
         server_ip = settings.CLEAR_DATABASE
         response = post(server_ip)
         if response.status_code == 200:
-            server_message = json.loads(response.text).get('Data')
-        else:
             server_message = json.loads(response.text).get('Data')
     return render(request, 'reset_data.html', {'server_response_message': server_message})
 
@@ -32,6 +33,7 @@ def load_dictionary(request):
 
 
 def upload_file(request):
+    global xml_string
     server_message = ""
     source = ""
     if request.method == 'POST':
@@ -47,14 +49,16 @@ def upload_file(request):
         if server_ip:
             try:
                 # Define el archivo y la clave específica
-                files = {'my_custom_key': (uploaded_file.name, uploaded_file.read())}
+                files = {'key': (uploaded_file.name, uploaded_file.read())}
 
                 # Envía el archivo al servidor de destino
                 response = post(server_ip, files=files)
 
                 if response.status_code == 200:
-                    server_message = xml_to_json(response.text)
-                    server_message = json.loads(server_message)
+                    server_message = response.text
+                    root = Et.fromstring(server_message)
+                    xml_string = Et.tostring(root, encoding='utf-8').decode('utf-8')
+                    return redirect('download_xml')
                 else:
                     server_message = "Error"
 
@@ -63,31 +67,6 @@ def upload_file(request):
         else:
             return HttpResponse('Fuente no válida.')
     return render(request, f'{source}.html', {'server_response_message': server_message})
-
-
-def xml_to_json(xml_str):
-    try:
-        root = Et.fromstring(xml_str)
-        xml_data = xml_to_dict(root)
-        return json.dumps(xml_data)
-    except Exception as e:
-        return json.dumps({"error": str(e)})
-
-
-def xml_to_dict(element):
-    if len(element) == 0:
-        return element.text
-    result = {}
-    for child in element:
-        child_data = xml_to_dict(child)
-        if child.tag in result:
-            if type(result[child.tag]) is list:
-                result[child.tag].append(child_data)
-            else:
-                result[child.tag] = [result[child.tag], child_data]
-        else:
-            result[child.tag] = child_data
-    return result
 
 
 def requests(request):
@@ -115,18 +94,15 @@ def requests(request):
 
         response = get(server_ip, params=params)
 
-        # Verifica si la solicitud fue exitosa
         if response.status_code == 200:
-            # Procesa la respuesta de Flask
-            data_from_flask = response.json()  # Asume que Flask responde con JSON
+            data_from_flask = response.json()
             data_from_flask = {
                 "data_type": data_type,
                 "data": data_from_flask
             }
             return render(request, 'results.html', {'formatted_data': data_from_flask})
         else:
-            # Maneja los errores, si es necesario
-            return None  # O una respuesta de error adecuada
+            return None
 
     return render(request, 'request.html')
 
@@ -135,12 +111,8 @@ def results(request):
     return render(request, 'results.html')
 
 
-def graphics(request):
-    return render(request, 'graphics.html')
-
-
 def show_pdf(request):
-    pdf_path = os.path.join(settings.MEDIA_ROOT, 'pdf', "Manual_de_Usuario_Prueba_Funcional.pdf")
+    pdf_path = os.path.join(settings.MEDIA_ROOT, 'pdf', "Manual_de_Usuario.pdf")
 
     try:
         with open(pdf_path, 'rb') as pdf_file:
@@ -152,3 +124,10 @@ def show_pdf(request):
         # Manejar el caso en el que el archivo no existe
         # Puedes mostrar un mensaje de error o redirigir a una página de error
         pass
+
+
+def download_xml(request):
+    global xml_string
+    response = HttpResponse(xml_string, content_type='application/xml')
+    response['Content-Disposition'] = 'attachment; filename=resumen.xml'
+    return response
