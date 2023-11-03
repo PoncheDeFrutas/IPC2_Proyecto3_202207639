@@ -1,5 +1,7 @@
 <?xml version="1.0" ?>
 <CONFIG_RECIBIDA>
-    <PALABRAS_POSITIVE>['feliz', 'alegre', 'genial', 'fantástico', 'emocionado', 'optimista', 'increíble', 'amor', 'amistad', 'celebración', 'agradecido', 'divertido', 'entusiasmado', 'apasionado', 'orgulloso', 'logro']</PALABRAS_POSITIVE>
-    <PALABRAS_NEGATIVE>['triste', 'decepcionado', 'enojado', 'frustrado', 'infeliz', 'abrumado', 'estresado', 'enojo', 'odio', 'desesperado', 'soledad', 'lágrimas', 'tristeza', 'desánimo', 'logro']</PALABRAS_NEGATIVE>
+    <PALABRAS_POSITIVAS>0</PALABRAS_POSITIVAS>
+    <PALABRAS_POSITIVAS_RECHAZADA>0</PALABRAS_POSITIVAS_RECHAZADA>
+    <PALABRAS_NEGATIVAS>0</PALABRAS_NEGATIVAS>
+    <PALABRAS_NEGATIVAS_RECHAZADA>0</PALABRAS_NEGATIVAS_RECHAZADA>
 </CONFIG_RECIBIDA>

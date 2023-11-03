@@ -25,6 +25,6 @@ urlpatterns = [
     path('requests/', requests, name='requests'),
     path('upload_file', upload_file, name='upload_file'),
     path('results/', results, name='results'),
-    path('graphics/', graphics, name='graphics'),
-    path('show_pdf/', show_pdf, name='show_pdf')
+    path('show_pdf/', show_pdf, name='show_pdf'),
+    path('download_xml/', download_xml, name='download_xml')
 ]
